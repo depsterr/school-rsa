@@ -7,8 +7,8 @@
 #include "vec.h"
 #include "prim.h"
 
-#define PRIME_MIN (1000000)
-#define PRIME_MAX (2000000)
+#define PRIME_MIN (1000000ul)
+#define PRIME_MAX (5000000ul)
 
 typedef struct {
 	unsigned long e;
@@ -49,7 +49,7 @@ unsigned long hack(pubkey p) {
 		ret += p.e;
 	}
 
-	return ret;
+	return (ret / p.e);
 }
 
 keyset generate_keyset(void) {
@@ -58,8 +58,13 @@ keyset generate_keyset(void) {
 	keyset ret;
 	unsigned long q, p, n, e ,d;
 
-	q = (PRIME_MIN + rand()) % PRIME_MAX;
-	p = (PRIME_MIN + rand()) % PRIME_MAX;
+	do {
+		q = (PRIME_MIN + rand()) % PRIME_MAX;
+	} while (q >= PRIME_MAX);
+
+	do {
+		p = (PRIME_MIN + rand()) % PRIME_MAX;
+	} while (p >= PRIME_MAX);
 
 	unsigned long max = q > p ? q : p;
 
@@ -143,15 +148,8 @@ int main(int argc, char** argv) {
 					set.priv.d, set.priv.n, set.pub.e, set.pub.n);
 			break;
 		case ENCRYPT:
-			set.pub.n = a;
-			set.pub.e = b;
-			result = encrypt(set.pub, c);
-			printf("Result: %ld\n", result);
-			break;
 		case DECRYPT:
-			set.priv.n = a;
-			set.priv.d = b;
-			result = decrypt(set.priv, c);
+			result = crypt(c, b, a);
 			printf("Result: %ld\n", result);
 			break;
 		case HACK:

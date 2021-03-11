@@ -1,7 +1,7 @@
 .POSIX:
 .PHONY: clean test
 OBJECTS=util.o prim.o vec.o main.o
-EXTRA=
+CFLAGS=-Ofast -pipe -march=native
 rsa: $(OBJECTS)
 	$(CC) $(EXTRA) $(CFLAGS) -o $@ $(OBJECTS)
 test: rsa
