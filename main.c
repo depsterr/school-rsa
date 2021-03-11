@@ -7,7 +7,8 @@
 #include "vec.h"
 #include "prim.h"
 
-#define PRIME_MAX (2000000-1)
+#define PRIME_MIN (1000000)
+#define PRIME_MAX (2000000)
 
 typedef struct {
 	unsigned long e;
@@ -44,8 +45,8 @@ unsigned long hack(pubkey p) {
 
 	printf("phi: %lu\n", phi);
 
-	while ((ret * p.e) % phi != 1) {
-		ret += 1;
+	while (ret % phi != 1) {
+		ret += p.e;
 	}
 
 	return ret;
@@ -57,8 +58,8 @@ keyset generate_keyset(void) {
 	keyset ret;
 	unsigned long q, p, n, e ,d;
 
-	q = 1 + rand() % PRIME_MAX;
-	p = 1 + rand() % PRIME_MAX;
+	q = (PRIME_MIN + rand()) % PRIME_MAX;
+	p = (PRIME_MIN + rand()) % PRIME_MAX;
 
 	unsigned long max = q > p ? q : p;
 
