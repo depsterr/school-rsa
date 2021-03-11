@@ -29,8 +29,27 @@ typedef enum action {
 	ENCRYPT,
 	DECRYPT,
 	HELP,
+	HACK,
 	UNKNOWN
 } action;
+
+unsigned long hack(pubkey p) {
+	unsigned long ret = 0;
+
+	unsigned long phi = 1;
+
+	for (unsigned long i = 2; i < p.n; i++) {
+		phi += (gcd(i, p.n) == 1);
+	}
+
+	printf("phi: %lu\n", phi);
+
+	while ((ret * p.e) % phi != 1) {
+		ret += 1;
+	}
+
+	return ret;
+}
 
 keyset generate_keyset(void) {
 	srand(time(0));
@@ -100,15 +119,20 @@ int main(int argc, char** argv) {
 			todo = ENCRYPT;
 		} else if (!strcmp(argv[1], "decrypt") && argv[2] && argv[3] && argv[4]) {
 			todo = DECRYPT;
+		} else if (!strcmp(argv[1], "hack") && argv[2] && argv[3]) {
+			todo = HACK;
 		} else if (!strcmp(argv[1], "help")) {
 			todo = HELP;
 		}
 	}
 
-	if (todo == ENCRYPT || todo == DECRYPT) {
-		a = strtoul(argv[2], 0, 10);
-		b = strtoul(argv[3], 0, 10);
-		c = strtoul(argv[4], 0, 10);
+	switch (todo) {
+		case ENCRYPT:
+		case DECRYPT:
+			c = strtoul(argv[4], 0, 10);
+		case HACK:
+			a = strtoul(argv[2], 0, 10);
+			b = strtoul(argv[3], 0, 10);
 	}
 
 	switch (todo) {
@@ -129,6 +153,12 @@ int main(int argc, char** argv) {
 			result = decrypt(set.priv, c);
 			printf("Result: %ld\n", result);
 			break;
+		case HACK:
+			set.pub.n = a;
+			set.pub.e = b;
+			result = hack(set.pub);
+			printf("Result: %ld\n", result);
+			break;
 		case UNKNOWN:
 			status = 1;
 		case HELP:
@@ -136,7 +166,8 @@ int main(int argc, char** argv) {
 				 "\n"
 				 "  rsa keygen - generate keys\n"
 				 "  rsa encrypt n e x - encrypt x with pubkey n and e\n"
-				 "  rsa decrypt n d y - decrypt y with privkey n and d\n");
+				 "  rsa decrypt n d y - decrypt y with privkey n and d\n"
+				 "  rsa hack n e - hack private key from public key\n");
 			exit(status);
 			break;
 	}
