@@ -1,3 +1,5 @@
+#include <sys/random.h>
+
 #include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -7,8 +9,8 @@
 #include "vec.h"
 #include "prim.h"
 
-#define PRIME_MIN (10000l)
-#define PRIME_MAX (50000l)
+#define PRIME_MIN (0ul)
+#define PRIME_MAX (10ul)
 
 typedef struct {
 	unsigned long e;
@@ -54,7 +56,12 @@ unsigned long hack(pubkey p) {
 }
 
 keyset generate_keyset(void) {
-	srand(time(0));
+	unsigned int seed;
+	if (getrandom(&seed, sizeof(seed), GRND_RANDOM) != sizeof(seed)) {
+		pdie("Unable to get random seed");
+	}
+
+	srand(seed);
 
 	keyset ret;
 	unsigned long q, p, n, e ,d;
@@ -84,23 +91,21 @@ keyset generate_keyset(void) {
 
 	unsigned long phi = (q-1) * (p-1);
 
-	printf("phi: %lu\nn: %lu\n", phi, n);
+	printf("phi: %lu\nn=%lu\n", phi, n);
 
-	do {
-		e = rand() + 2;
-		while (gcd(phi, e) != 1) {
-			e++;
-		}
-	} while (e == phi);
+	e = 2;
+	while (gcd(phi, e) != 1) {
+		e++;
+	}
 
-	printf("e: %lu\n", e);
+	printf("e=%lu\n", e);
 
-	d = rand();
-	while ((d * e) % phi != 1) {
+	d = 1;
+	while ((d*e) % phi != 1) {
 		d++;
 	}
 
-	printf("d: %lu\n", d);
+	printf("d=%lu\n", d);
 
 	ret.priv.n = n;
 	ret.pub.n = n;
