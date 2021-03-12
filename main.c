@@ -7,8 +7,8 @@
 #include "vec.h"
 #include "prim.h"
 
-#define PRIME_MIN (1000000l)
-#define PRIME_MAX (5000000l)
+#define PRIME_MIN (10000l)
+#define PRIME_MAX (50000l)
 
 typedef struct {
 	unsigned long e;
@@ -84,15 +84,23 @@ keyset generate_keyset(void) {
 
 	unsigned long phi = (q-1) * (p-1);
 
-	e = 2;
-	while (gcd(phi, e) != 1) {
-		e++;
-	}
+	printf("phi: %lu\nn: %lu\n", phi, n);
 
-	d = 1;
+	do {
+		e = rand() + 2;
+		while (gcd(phi, e) != 1) {
+			e++;
+		}
+	} while (e == phi);
+
+	printf("e: %lu\n", e);
+
+	d = rand();
 	while ((d * e) % phi != 1) {
 		d++;
 	}
+
+	printf("d: %lu\n", d);
 
 	ret.priv.n = n;
 	ret.pub.n = n;
