@@ -69,18 +69,17 @@ keyset generate_keyset(void) {
 
 	unsigned long max = q > p ? q : p;
 
-	printf("Generating %ld primes\n", max);
+	printf("Generating %lu primes\n", max);
 
 	Vector primes = get_n_primes(max + 1);
 
 	q = primes.ptr[q];
 	p = primes.ptr[p];
 
-	printf("q: %ld\np: %ld\n", q, p);
+	printf("q: %lu\np: %lu\n", q, p);
 
 	deleteVector(&primes);
 
-	n = q * p;
 	n = q * p;
 
 	unsigned long phi = (q-1) * (p-1);
@@ -91,7 +90,6 @@ keyset generate_keyset(void) {
 			e++;
 		}
 	} while (e == phi);
-
 
 	d = rand();
 	while ((d * e) % 60 != 1) {
@@ -146,19 +144,19 @@ int main(int argc, char** argv) {
 	switch (todo) {
 		case KEYGEN:
 			set = generate_keyset();
-			printf("Generated keyset:\nprivkey = {\n\td: %ld\n\tn: %ld\n}\npubkey = {\n\te: %ld\n\tn: %ld\n}\n",
+			printf("Generated keyset:\nprivkey = {\n\td: %lu\n\tn: %lu\n}\npubkey = {\n\te: %lu\n\tn: %lu\n}\n",
 					set.priv.d, set.priv.n, set.pub.e, set.pub.n);
 			break;
 		case ENCRYPT:
 		case DECRYPT:
 			result = crypt(c, b, a);
-			printf("Result: %ld\n", result);
+			printf("Result: %lu\n", result);
 			break;
 		case HACK:
 			set.pub.n = a;
 			set.pub.e = b;
 			result = hack(set.pub);
-			printf("Result: %ld\n", result);
+			printf("Result: %lu\n", result);
 			break;
 		case UNKNOWN:
 			status = 1;
