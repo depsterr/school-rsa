@@ -34,6 +34,7 @@ typedef enum action {
 	UNKNOWN
 } action;
 
+/* TODO: OPTIMIZE */
 unsigned long hack(pubkey p) {
 	unsigned long ret = 0;
 
@@ -139,6 +140,7 @@ int main(int argc, char** argv) {
 		case HACK:
 			a = strtoul(argv[2], 0, 10);
 			b = strtoul(argv[3], 0, 10);
+		default:;
 	}
 
 	switch (todo) {
