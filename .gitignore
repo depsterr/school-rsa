@@ -1,3 +1,5 @@
 *.o
 .*.swp
+*.hi
+*_stub.h
 rsa

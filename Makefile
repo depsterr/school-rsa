@@ -1,13 +1,16 @@
 .POSIX:
 .PHONY: clean test
-OBJECTS=util.o prim.o vec.o main.o
-CFLAGS=-Ofast -pipe -march=native
+OBJECTS=rsacrypt.o util.o prim.o vec.o main.o
+CFLAGS=-Ofast -pipe -march=native -I/usr/local/lib/ghc/include
 rsa: $(OBJECTS)
-	$(CC) $(EXTRA) $(CFLAGS) -o $@ $(OBJECTS)
+	ghc -no-hs-main -o $@ $(OBJECTS)
+rsacrypt.o: rsacrypt.hs
+	ghc -c -XForeignFunctionInterface -O rsacrypt.hs
+main.o: rsacrypt.o
 test: rsa
 	./rsa
 clean:
-	rm -f $(OBJECTS)
+	rm -f $(OBJECTS) rsacrypt.hi rsacrypt_stub.h
 .SUFFIXES: .o .c
 .c.o:
 	$(CC) -c $(EXTRA) $(CFLAGS) -o $@ $<

@@ -49,22 +49,6 @@ unsigned long fast_sqrt(unsigned long val) {
 	return a;
 }
 
-unsigned long crypt(unsigned long base, unsigned long exponent, unsigned long mod) {
-	unsigned long res = 1;
-
- 	while (exponent > 0) {
- 		if (exponent & 1) {
- 			res *= base;
-			res  %= mod;
- 		}
- 		exponent >>= 1;
- 		base *= base;
-		base %= mod;
- 	}
-
-	return res;
-}
-
 unsigned long gcd(unsigned long a, unsigned long b) {
 	unsigned long tmp;
 
@@ -75,4 +59,23 @@ unsigned long gcd(unsigned long a, unsigned long b) {
 	}
 
 	return a;
+}
+
+unsigned long find_d(unsigned long e, unsigned long phi) {
+	unsigned long eprev, dprev, d = 1, etemp, dtemp;
+
+	eprev = phi, dprev = phi;
+	while (e != 1)
+	{
+		etemp = e;
+		dtemp = d;
+		e = eprev - eprev / etemp * e;
+		d = dprev - eprev / etemp * d;
+		eprev = etemp;
+		dprev = dtemp;
+		while (d < 0)
+			d += phi;
+	}
+
+	return d;
 }

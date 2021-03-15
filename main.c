@@ -1,4 +1,10 @@
-#include <sys/random.h>
+#ifdef __linux__
+#	include <sys/random.h>
+#else
+#	include "random.h"
+#endif
+
+#include "hs.h"
 
 #include <time.h>
 #include <stdio.h>
@@ -9,8 +15,8 @@
 #include "vec.h"
 #include "prim.h"
 
-#define PRIME_MIN (0ul)
-#define PRIME_MAX (10ul)
+#define PRIME_MIN (100000ul)
+#define PRIME_MAX (999999ul)
 
 typedef struct {
 	unsigned long e;
@@ -100,10 +106,7 @@ keyset generate_keyset(void) {
 
 	printf("e=%lu\n", e);
 
-	d = 1;
-	while ((d*e) % phi != 1) {
-		d++;
-	}
+	d = find_d(e, phi);
 
 	printf("d=%lu\n", d);
 
@@ -114,19 +117,13 @@ keyset generate_keyset(void) {
 	return ret;
 }
 
-unsigned long encrypt(pubkey p, unsigned long x) {
-	return crypt(x, p.e, p.n);
-}
-
-unsigned long decrypt(privkey p, unsigned long y) {
-	return crypt(y, p.d, p.n);
-}
-
 int main(int argc, char** argv) {
 	action todo = UNKNOWN;
 	int status = 0;
 	keyset set;
 	unsigned long result, a, b, c;
+
+	hs_init(&argc, &argv);
 
 	if (argv[1]) {
 		if (!strcmp(argv[1], "keygen")) {
@@ -160,7 +157,8 @@ int main(int argc, char** argv) {
 			break;
 		case ENCRYPT:
 		case DECRYPT:
-			result = crypt(c, b, a);
+			/* result = rsacrypt(c, b, a); */
+			result = rsaCryptHs(c, b, a);
 			printf("Result: %lu\n", result);
 			break;
 		case HACK:
@@ -181,4 +179,6 @@ int main(int argc, char** argv) {
 			exit(status);
 			break;
 	}
+
+	hs_exit();
 }
