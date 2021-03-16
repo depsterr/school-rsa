@@ -16,6 +16,6 @@ void expandVector(Vector* vec, size_t size);
 void shrinkVector(Vector* vec, size_t size);
 void doubleVector(Vector* vec);
 void deleteVector(Vector* vec);
-void appendVector(Vector* vec, long a);
+void appendVector(Vector* vec, unsigned long a);
 
 #endif

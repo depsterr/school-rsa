@@ -12,18 +12,18 @@ Vector newVector(size_t len) {
 }
 
 void expandVector(Vector* vec, size_t size) {
-	vec->size += size;
-	vec->ptr = xrealloc(vec->ptr, vec->size * sizeof(long));
+	vec->size += size * sizeof(unsigned long);
+	vec->ptr = xrealloc(vec->ptr, vec->size);
 }
 
 void shrinkVector(Vector* vec, size_t size) {
-	vec->size -= size;
-	vec->ptr = xrealloc(vec->ptr, vec->size * sizeof(long));
+	vec->size -= size * sizeof(unsigned long);
+	vec->ptr = xrealloc(vec->ptr, vec->size);
 }
 
 void doubleVector(Vector* vec) {
 	vec->size *= 2;
-	vec->ptr = xrealloc(vec->ptr, vec->size * sizeof(long));
+	vec->ptr = xrealloc(vec->ptr, vec->size);
 }
 
 void deleteVector(Vector* vec) {
@@ -32,8 +32,8 @@ void deleteVector(Vector* vec) {
 	vec->len = 0;
 }
 
-void appendVector(Vector* vec, long a) {
-	if (vec->len + 1 > vec->size) {
+void appendVector(Vector* vec, unsigned long a) {
+	if ((vec->len + 1) * sizeof(unsigned long) >= vec->size) {
 		doubleVector(vec);
 	}
 	vec->ptr[vec->len] = a;

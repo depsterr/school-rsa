@@ -1,2 +1,2 @@
 #include <HsFFI.h>
-#include "rsacrypt_stub.h"
+#include "math_stub.h"

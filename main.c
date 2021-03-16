@@ -1,7 +1,30 @@
 #ifdef __linux__
 #	include <sys/random.h>
+#elif __unix__
+#include <stddef.h>
+#include <unistd.h>
+#include <fcntl.h>
+#define GRND_RANDOM 1
+size_t getrandom(void* b, size_t s, int flags) {
+        size_t ret;
+        int fd;
+        fd = open("/dev/urandom", O_RDONLY);
+        ret = read(fd, b, s);
+        close(fd);
+        return ret;
+}
 #else
-#	include "random.h"
+#include <time.h>
+#include <stdint.h>
+#define GRND_RANDOM 1
+size_t getrandom(void* b, size_t s, int flags) {
+	void* e = b + s;
+	while (b <= e) {
+		*(uint8_t*)b = time(0);
+		b++;
+	}
+	return s;
+}
 #endif
 
 #include "hs.h"
@@ -42,23 +65,33 @@ typedef enum action {
 	UNKNOWN
 } action;
 
-/* TODO: OPTIMIZE */
 unsigned long hack(pubkey p) {
-	unsigned long ret = 0;
+	unsigned long d = 0;
 
-	unsigned long phi = 1;
+	unsigned long phi = 0;
 
-	for (unsigned long i = 2; i < p.n; i++) {
-		phi += (gcd(i, p.n) == 1);
+	Vector primes = get_primes_to(p.n);
+
+	for (unsigned long i = 0; i < primes.len; i++) {
+		if (p.n % primes.ptr[i] == 0) {
+			phi = ((p.n / primes.ptr[i]) - 1) * (primes.ptr[i] - 1);
+			break;
+		}
+	}
+
+	if (!phi) {
+		die("Unable to find phi\n");
 	}
 
 	printf("phi: %lu\n", phi);
 
-	while (ret % phi != 1) {
-		ret += p.e;
+	d = findDHs(p.e, phi);
+
+	if ((d * p.e) % phi != 1) {
+		die("ERROR: Generated invalid d: %lu\n", d);
 	}
 
-	return (ret / p.e);
+	return d;
 }
 
 keyset generate_keyset(void) {
@@ -106,7 +139,11 @@ keyset generate_keyset(void) {
 
 	printf("e=%lu\n", e);
 
-	d = find_d(e, phi);
+	d = findDHs(e, phi);
+
+	if ((d * e) % phi != 1) {
+		die("ERROR: Generated invalid d: %lu\n", d);
+	}
 
 	printf("d=%lu\n", d);
 
@@ -139,6 +176,7 @@ int main(int argc, char** argv) {
 		}
 	}
 
+	/* fall through intended */
 	switch (todo) {
 		case ENCRYPT:
 		case DECRYPT:
@@ -165,7 +203,7 @@ int main(int argc, char** argv) {
 			set.pub.n = a;
 			set.pub.e = b;
 			result = hack(set.pub);
-			printf("Result: %lu\n", result);
+			printf("d: %lu\n", result);
 			break;
 		case UNKNOWN:
 			status = 1;

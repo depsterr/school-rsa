@@ -29,3 +29,27 @@ Vector get_n_primes(unsigned long n) {
 
 	return ret;
 }
+
+Vector get_primes_to(unsigned long n) {
+	Vector ret = newVector(2);
+	ret.ptr[0] = 2;
+	ret.ptr[1] = 3;
+
+	for (unsigned long i = 5; i < n; i++) {
+		unsigned long root = fast_sqrt(i);
+		unsigned char prime = 1;
+
+		for (unsigned long k = 0; k < ret.len && ret.ptr[k] <= root; k++) {
+			if ((i % ret.ptr[k]) == 0) {
+				prime = 0;
+				break;
+			}
+		}
+
+		if (prime) {
+			appendVector(&ret, i);
+		}
+	}
+
+	return ret;
+}
