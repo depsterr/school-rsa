@@ -38,9 +38,11 @@ size_t getrandom(void* b, size_t s, int flags) {
 #include "vec.h"
 #include "prim.h"
 
+/* största och minsta möjliga indexet av primtal vi vill kunna generera */
 #define PRIME_MIN (100000ul)
 #define PRIME_MAX (999999ul)
 
+/* data strukturer för privata och publika nycklar */
 typedef struct {
 	unsigned long e;
 	unsigned long n;
@@ -51,11 +53,13 @@ typedef struct {
 	unsigned long n;
 } privkey;
 
+/* data struktur för både privat och publik nyckel */
 typedef struct {
 	pubkey pub;
 	privkey priv;
 } keyset;
 
+/* de olika aktionerna som vårt program kan köra */
 typedef enum action {
 	KEYGEN,
 	ENCRYPT,
@@ -65,12 +69,13 @@ typedef enum action {
 	UNKNOWN
 } action;
 
+/* denna funktionen tar en pubkey p och returnerar motsvarande d */
 unsigned long hack(pubkey p) {
 	unsigned long d = 0;
 
 	unsigned long phi = 0;
 
-	Vector primes = get_primes_to(p.n);
+	Vector primes = get_primes_to((p.n / 2) + 1);
 
 	for (unsigned long i = 0; i < primes.len; i++) {
 		if (p.n % primes.ptr[i] == 0) {
@@ -94,6 +99,8 @@ unsigned long hack(pubkey p) {
 	return d;
 }
 
+/* denna funktionen tar inga argument och returnerar ett keyset med både */
+/* en publik och private key som hör ihop */
 keyset generate_keyset(void) {
 	unsigned int seed;
 	if (getrandom(&seed, sizeof(seed), GRND_RANDOM) != sizeof(seed)) {
@@ -105,13 +112,8 @@ keyset generate_keyset(void) {
 	keyset ret;
 	unsigned long q, p, n, e ,d;
 
-	do {
-		q = (PRIME_MIN + rand()) % PRIME_MAX;
-	} while (q >= PRIME_MAX);
-
-	do {
-		p = (PRIME_MIN + rand()) % PRIME_MAX;
-	} while (p >= PRIME_MAX);
+	q = PRIME_MIN + (rand() % (PRIME_MAX - PRIME_MIN));
+	p = PRIME_MIN + (rand() % (PRIME_MAX - PRIME_MIN));
 
 	unsigned long max = q > p ? q : p;
 
@@ -154,6 +156,7 @@ keyset generate_keyset(void) {
 	return ret;
 }
 
+/* startpunkten för vårt program */
 int main(int argc, char** argv) {
 	action todo = UNKNOWN;
 	int status = 0;
@@ -162,6 +165,7 @@ int main(int argc, char** argv) {
 
 	hs_init(&argc, &argv);
 
+	/* avgör vilken aktion vi bör ta */
 	if (argv[1]) {
 		if (!strcmp(argv[1], "keygen")) {
 			todo = KEYGEN;
@@ -176,7 +180,7 @@ int main(int argc, char** argv) {
 		}
 	}
 
-	/* fall through intended */
+	/* konvertera strängar från våra argument till nummer */
 	switch (todo) {
 		case ENCRYPT:
 		case DECRYPT:
@@ -187,6 +191,7 @@ int main(int argc, char** argv) {
 		default:;
 	}
 
+	/* kör rätt funktion respektive vår aktion och printa resultaten */
 	switch (todo) {
 		case KEYGEN:
 			set = generate_keyset();

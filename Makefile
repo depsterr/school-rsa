@@ -10,7 +10,7 @@ main.o: math.o
 test: rsa
 	./rsa
 clean:
-	rm -f $(OBJECTS) math.hi math.h
+	rm -f $(OBJECTS) math.hi math_stub.h
 .SUFFIXES: .o .c
 .c.o:
 	$(CC) -c $(EXTRA) $(CFLAGS) -o $@ $<
