@@ -25,18 +25,16 @@ main.c
 
 main.c är programmets startpunkt. (skriven i C)
 
-datastrukturer:
+### datastrukturer
 
 pubkey : representerar en public key (n och e)
 privkey :  representerar en private key (n och d)
 
 keyset : representerar en pubkey och en privkey
 
-hack() funktionen:
+### Funktioner
 
 hack funktionen tar en pubkey och returnerar d. Detta görs genom att dividera nyckelns n med alla primtal upp till (n / 2) + 1. När den hittar en division som går jämt ut så vet den ju båda primtal och räknar då ut phi och kör findDHs funktionen från math.hs för att hitta d. Efter detta returneras d.
-
-generate\_keyset() funktionen:
 
 generate\_keyset funktionen tar inga argument och returnerar ett keyset. Den generarar detta genom att slumpa två primtals index (dvs, ett index i en lista av alla primtal). Programmet genererar sedan så många primtal som behövs och ger q och p sina värden. Efter detta så räknar den snabbt ut n och phi. Sedan så hittas e genom att pröva alla värden från och med två och uppåt tills gcd(phi, e) == 1. d genereras sedan med tidigare nämnda findDHs funktionen.
 
@@ -66,6 +64,8 @@ util.c
 ------
 
 util.c har några diverse hjälp funktioner. (skriven i C)
+
+### Funktioner
 
 die funktionen printar ett medellande och stoppar programmet
 
