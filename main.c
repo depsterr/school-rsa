@@ -39,8 +39,8 @@ size_t getrandom(void* b, size_t s, int flags) {
 #include "prim.h"
 
 /* största och minsta möjliga indexet av primtal vi vill kunna generera */
-#define PRIME_MIN (100000ul)
-#define PRIME_MAX (999999ul)
+#define PRIME_MIN (1000000ul)
+#define PRIME_MAX (9999999ul)
 
 /* data strukturer för privata och publika nycklar */
 typedef struct {
@@ -75,14 +75,8 @@ unsigned long hack(pubkey p) {
 
 	unsigned long phi = 0;
 
-	Vector primes = get_primes_to((p.n / 2) + 1);
-
-	for (unsigned long i = 0; i < primes.len; i++) {
-		if (p.n % primes.ptr[i] == 0) {
-			phi = ((p.n / primes.ptr[i]) - 1) * (primes.ptr[i] - 1);
-			break;
-		}
-	}
+	unsigned long q = pollardRhoHs(p.n);
+	phi = (q - 1) * ((p.n / q) - 1);
 
 	if (!phi) {
 		die("Unable to find phi\n");

@@ -1,7 +1,7 @@
 .POSIX:
 .PHONY: clean test
 OBJECTS=math.o util.o prim.o vec.o main.o
-CFLAGS=-Ofast -pipe -march=native -I/usr/local/lib/ghc/include -I/usr/lib64/ghc-8.8.4/include -Wall -Wextra
+CFLAGS=-Ofast -pipe -march=native -I/usr/local/lib/ghc/include -I/usr/lib64/ghc-8.10.4/include -Wall -Wextra
 rsa: $(OBJECTS)
 	ghc -no-hs-main -o $@ $(OBJECTS)
 math.o: math.hs
