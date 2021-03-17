@@ -59,7 +59,7 @@ pollardStep n x y
     p = gcd n $ abs $ y - x
     x1 = g x `mod` n
     y1 = (g . g) y `mod` n
-    g x = x * x - 1
+    g x = x * x - 1 -- Funktions defintion, detta x är ej relaterat till tidigare x.
 
 -- Exportera funktioner till min C kod
 foreign export ccall rsaCryptHs :: CULong -> CULong -> CULong -> CULong
